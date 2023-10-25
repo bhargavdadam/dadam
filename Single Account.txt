@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Rule created="" id="" language="beanshell" modified="" name="Single Account Aggregation Rule (Updated)">
+  <ReferencedRules>
+   <Reference class="sailpoint.object.Rule" id="" name=PIF Rule Library"/>
+  </RefrencedRules>
+  <Source>
+   import sailpoint.object.Application;
+   import sailpoint.object.Attributes;
+   import sailpoint.object.ResourceObject;
+   import sailpoint.object.TaskResult;
+   import sailpoint.api.Aggregator;
+   import sailpoint.connector.Connector;
+   import org.apache.log4j.Logger;
+   import org.apache.log4j.level;
+   import java.util.*;
+   Logger log=Logger.getLogger(sailpoint.pif.logs");
+   log.info("==========================================================================\n");
+   log.info("##############################>>>>>Single account Aggregation Started ##################>>>>>>>>>>>>>>>>>>>>>");
+   //return isADAccountExist("hjawa");
+   //return context.decrypt("1.ACP:k45XHYQMvyGXAdbFE6G90WA9v7pg06IqzbcBHd/KJas=");
+   /**provide the appName and acctNativeIdentity below and run the rule in debug*/
+   //String appName="HR";
+   //String acctNativeIdentity="28154";
+   String appName="AD Onboarding";
+   String acctNativeIdentity="CN=Maha almogel ADM,OU=PAM Accounts,OU=PIF Structure,DC=PIF,DC=local";
+   Application appObject=context.getObjectByName(Application.class,appName);
+   String appConnName=appObject.getConnector();
+   Connector appConnector=sailpoint.connector.Connector.getObject("account",acctNativeIdentity,null);
+   ResourceObject rObj=appConnector.getObject("account",acctNativeIdentity,null);
+   if(rObj!=null){
+	Attributes argMap=new Attributes();
+	argMap.put("aggregationType",account");
+	argMap.put("descriptionAttribute",appName);
+	argMap.put("descriptionLocale","en_US");
+	argMap.put("noOptimizeReaggregation","true");
+	//argMap.put("correlateOnly","true");
+	Aggregator agg=new Aggregator(context,argMap);
+	TaskResult result=agg.aggregate(appObject,rObj);
+	return rObj.toXml();
+  }
+  else {
+	log.info("The account " + acctnativeIdentity + " can not be found.");
+  }
+ </Source>
+</Rule>
